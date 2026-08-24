@@ -1,0 +1,705 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'website/style.css' %}">
+
+    <title>DocuMind — Intelligent Document Platform</title>
+  </head>
+
+  <body>
+    <!-- ================= NAVBAR ================= -->
+
+    <header class="navbar">
+      <div class="container nav-container">
+        <a href="#" class="logo">
+          <div class="logo-icon">D</div>
+          <span>Docu<span>Mind</span></span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#technology">Technology</a>
+          <a href="#security">Security</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a href="#" class="login-link">Sign In</a>
+          <a href="{% url 'chat' %}" class="btn btn-primary btn-small"> Get Started </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ================= HERO ================= -->
+
+      <section class="hero">
+        <div class="container hero-container">
+          <div class="hero-content">
+            <div class="eyebrow">
+              <span class="status-dot"></span>
+              Intelligent Document Platform
+            </div>
+
+            <h1>
+              Turn your documents into
+              <span>intelligent conversations.</span>
+            </h1>
+
+            <p class="hero-description">
+              DocuMind combines document retrieval, AI agents, and LangGraph
+              orchestration to help you understand, search, and interact with
+              your documents.
+            </p>
+
+            <div class="hero-actions">
+              <a href="{% url 'chat' %}" class="btn btn-primary">
+                Get Started
+                <span>→</span>
+              </a>
+
+              <a href="#how-it-works" class="btn btn-secondary">
+                See How It Works
+              </a>
+            </div>
+
+            <div class="hero-note">
+              <span>✓</span>
+              Built with Django, LangChain & LangGraph
+            </div>
+          </div>
+
+          <!-- AI WORKSPACE VISUAL -->
+
+          <div class="hero-visual">
+            <div class="workspace">
+              <div class="workspace-header">
+                <div class="window-dots">
+                  <i></i>
+                  <i></i>
+                  <i></i>
+                </div>
+
+                <span>DocuMind Workspace</span>
+
+                <div class="workspace-status">
+                  <span></span>
+                  Online
+                </div>
+              </div>
+
+              <div class="workspace-body">
+                <aside class="workspace-sidebar">
+                  <div class="sidebar-item active">
+                    <span>▣</span>
+                    Documents
+                  </div>
+
+                  <div class="sidebar-item">
+                    <span>◌</span>
+                    Conversations
+                  </div>
+
+                  <div class="sidebar-item">
+                    <span>⚙</span>
+                    Agents
+                  </div>
+                </aside>
+
+                <div class="chat-area">
+                  <div class="document-card">
+                    <div class="document-icon">DOC</div>
+
+                    <div>
+                      <strong>research-report.pdf</strong>
+                      <small>Retrieved from document store</small>
+                    </div>
+
+                    <span class="check">✓</span>
+                  </div>
+
+                  <div class="message user-message">
+                    What are the key findings of this document?
+                  </div>
+
+                  <div class="agent-processing">
+                    <div class="agent-title">
+                      <span class="agent-icon">✦</span>
+                      DocuMind Agent
+                    </div>
+
+                    <div class="agent-steps">
+                      <div class="agent-step completed">
+                        <span>✓</span>
+                        Query classified
+                      </div>
+
+                      <div class="agent-step completed">
+                        <span>✓</span>
+                        Relevant chunks retrieved
+                      </div>
+
+                      <div class="agent-step completed">
+                        <span>✓</span>
+                        Answer evaluated
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="message ai-message">
+                    <div class="ai-avatar">D</div>
+
+                    <div>
+                      The document identifies three major findings. The first is
+                      a significant improvement in system efficiency...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TRUST BAR ================= -->
+
+      <section class="trust-bar">
+        <div class="container trust-container">
+          <span>POWERED BY</span>
+
+          <div class="tech-item">
+            <strong>LangChain</strong>
+          </div>
+
+          <div class="tech-item">
+            <strong>LangGraph</strong>
+          </div>
+
+          <div class="tech-item">
+            <strong>Django</strong>
+          </div>
+
+          <div class="tech-item">
+            <strong>Vector Search</strong>
+          </div>
+
+          <div class="tech-item">
+            <strong>Database</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= FEATURES ================= -->
+
+      <section class="section features" id="features">
+        <div class="container">
+          <div class="section-heading">
+            <div class="section-label">CAPABILITIES</div>
+
+            <h2>
+              Everything you need to
+              <span>work with documents.</span>
+            </h2>
+
+            <p>
+              A complete document intelligence workflow powered by retrieval,
+              agents, and orchestration.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card large-card">
+              <div class="feature-icon">⌕</div>
+
+              <h3>Intelligent Document Q&A</h3>
+
+              <p>
+                Ask natural-language questions about your uploaded documents and
+                receive answers grounded in the source material.
+              </p>
+
+              <div class="mini-search">
+                <span>⌕</span>
+                <span>What does the report say about...</span>
+              </div>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-icon">✦</div>
+
+              <h3>AI Summarization</h3>
+
+              <p>
+                Generate concise summaries from lengthy documents without
+                manually reading every page.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-icon">↗</div>
+
+              <h3>Smart Retrieval</h3>
+
+              <p>
+                Embeddings, vector search, and MMR retrieval find the most
+                relevant information.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-icon">◎</div>
+
+              <h3>Conversation Memory</h3>
+
+              <p>
+                Database-backed checkpointing keeps conversations persistent
+                across sessions.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-icon">⚡</div>
+
+              <h3>Agent Tools</h3>
+
+              <p>
+                AI agents can use calculation, web search, and database tools
+                when required.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-icon">✓</div>
+
+              <h3>Answer Evaluation</h3>
+
+              <p>
+                An evaluator checks generated answers against source documents
+                before delivery.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= HOW IT WORKS ================= -->
+
+      <section class="section workflow" id="how-it-works">
+        <div class="container">
+          <div class="section-heading">
+            <div class="section-label">HOW IT WORKS</div>
+
+            <h2>
+              From document to
+              <span>intelligent answer.</span>
+            </h2>
+
+            <p>
+              DocuMind orchestrates multiple AI components behind a simple user
+              experience.
+            </p>
+          </div>
+
+          <div class="workflow-container">
+            <div class="workflow-line"></div>
+
+            <div class="workflow-step">
+              <div class="step-number">01</div>
+
+              <div class="step-content">
+                <h3>Upload</h3>
+
+                <p>
+                  Upload your documents through the Django-powered application.
+                </p>
+
+                <div class="step-tag">Document Loader</div>
+              </div>
+            </div>
+
+            <div class="workflow-step">
+              <div class="step-number">02</div>
+
+              <div class="step-content">
+                <h3>Process & Retrieve</h3>
+
+                <p>
+                  Documents are split, embedded, and stored for efficient
+                  semantic retrieval.
+                </p>
+
+                <div class="step-tag">RAG + Vector Store</div>
+              </div>
+            </div>
+
+            <div class="workflow-step">
+              <div class="step-number">03</div>
+
+              <div class="step-content">
+                <h3>Orchestrate</h3>
+
+                <p>
+                  LangGraph routes the request to the appropriate agent
+                  workflow.
+                </p>
+
+                <div class="step-tag">LangGraph</div>
+              </div>
+            </div>
+
+            <div class="workflow-step">
+              <div class="step-number">04</div>
+
+              <div class="step-content">
+                <h3>Answer & Verify</h3>
+
+                <p>
+                  The answer is generated and evaluated against available source
+                  material.
+                </p>
+
+                <div class="step-tag">Evaluator Agent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= LANGGRAPH ================= -->
+
+      <section class="section architecture">
+        <div class="container architecture-container">
+          <div class="architecture-content">
+            <div class="section-label">LANGGRAPH ORCHESTRATION</div>
+
+            <h2>
+              Multiple agents.
+              <span>One intelligent workflow.</span>
+            </h2>
+
+            <p>
+              Instead of relying on a single AI call, DocuMind uses a stateful
+              LangGraph workflow to route, parallelize, evaluate, and control
+              agent execution.
+            </p>
+
+            <div class="architecture-list">
+              <div class="architecture-item">
+                <div class="architecture-icon">↗</div>
+
+                <div>
+                  <strong>Smart Routing</strong>
+                  <p>
+                    Automatically classify requests into Q&A, summarization, or
+                    actions.
+                  </p>
+                </div>
+              </div>
+
+              <div class="architecture-item">
+                <div class="architecture-icon">⇄</div>
+
+                <div>
+                  <strong>Parallel Execution</strong>
+                  <p>Retrieval and external search can run concurrently.</p>
+                </div>
+              </div>
+
+              <div class="architecture-item">
+                <div class="architecture-icon">✓</div>
+
+                <div>
+                  <strong>Evaluator Loop</strong>
+                  <p>Generated answers are checked before reaching the user.</p>
+                </div>
+              </div>
+
+              <div class="architecture-item">
+                <div class="architecture-icon">◉</div>
+
+                <div>
+                  <strong>Human-in-the-Loop</strong>
+                  <p>
+                    Sensitive actions can pause execution for user confirmation.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- GRAPH VISUAL -->
+
+          <div class="graph-card">
+            <div class="graph-header">
+              <span>Agent Workflow</span>
+              <span class="graph-live"> ● Live </span>
+            </div>
+
+            <div class="graph">
+              <div class="graph-node start-node">User Query</div>
+
+              <div class="graph-arrow">↓</div>
+
+              <div class="graph-node router-node">Router</div>
+
+              <div class="graph-branches">
+                <div>
+                  <div class="graph-arrow">↙</div>
+
+                  <div class="graph-node small">Q&A</div>
+                </div>
+
+                <div>
+                  <div class="graph-arrow">↓</div>
+
+                  <div class="graph-node small">Summary</div>
+                </div>
+
+                <div>
+                  <div class="graph-arrow">↘</div>
+
+                  <div class="graph-node small">Action</div>
+                </div>
+              </div>
+
+              <div class="graph-arrow">↓</div>
+
+              <div class="graph-node evaluator">
+                Evaluator
+                <span>✓</span>
+              </div>
+
+              <div class="graph-arrow">↓</div>
+
+              <div class="graph-node final-node">Final Answer</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TECHNOLOGY ================= -->
+
+      <section class="section technology" id="technology">
+        <div class="container">
+          <div class="section-heading">
+            <div class="section-label">TECHNOLOGY STACK</div>
+
+            <h2>
+              Built on a modern
+              <span>AI architecture.</span>
+            </h2>
+
+            <p>
+              Each layer is responsible for a specific part of the document
+              intelligence pipeline.
+            </p>
+          </div>
+
+          <div class="stack-grid">
+            <div class="stack-card">
+              <div class="stack-number">01</div>
+
+              <h3>LangChain</h3>
+
+              <p>
+                Document ingestion, retrieval, chains, agents, and tool
+                integration.
+              </p>
+
+              <div class="stack-tags">
+                <span>Loaders</span>
+                <span>Splitters</span>
+                <span>Retrievers</span>
+              </div>
+            </div>
+
+            <div class="stack-card">
+              <div class="stack-number">02</div>
+
+              <h3>LangGraph</h3>
+
+              <p>
+                Stateful agent workflows with routing, parallelization,
+                evaluation, and persistence.
+              </p>
+
+              <div class="stack-tags">
+                <span>State</span>
+                <span>Routing</span>
+                <span>Checkpointing</span>
+              </div>
+            </div>
+
+            <div class="stack-card">
+              <div class="stack-number">03</div>
+
+              <h3>Django</h3>
+
+              <p>
+                Secure web application layer with accounts, APIs, templates, and
+                database integration.
+              </p>
+
+              <div class="stack-tags">
+                <span>Views</span>
+                <span>REST APIs</span>
+                <span>Templates</span>
+              </div>
+            </div>
+
+            <div class="stack-card">
+              <div class="stack-number">04</div>
+
+              <h3>Vector Store</h3>
+
+              <p>
+                Semantic document retrieval powered by embeddings and similarity
+                search.
+              </p>
+
+              <div class="stack-tags">
+                <span>Embeddings</span>
+                <span>MMR</span>
+                <span>Search</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECURITY ================= -->
+
+      <section class="security-section" id="security">
+        <div class="container security-container">
+          <div class="security-content">
+            <div class="section-label">SECURE BY DESIGN</div>
+
+            <h2>
+              Your documents.
+              <span>Your control.</span>
+            </h2>
+
+            <p>
+              DocuMind is designed as a secured, database-backed application
+              where authentication, document access, state management, and
+              sensitive actions are handled through the application layer.
+            </p>
+
+            <div class="security-points">
+              <div>
+                <span>✓</span>
+                Database-backed application
+              </div>
+
+              <div>
+                <span>✓</span>
+                Persistent conversation state
+              </div>
+
+              <div>
+                <span>✓</span>
+                Human approval for sensitive actions
+              </div>
+
+              <div>
+                <span>✓</span>
+                Source-grounded responses
+              </div>
+            </div>
+          </div>
+
+          <div class="security-card">
+            <div class="shield">✓</div>
+
+            <h3>Protected Workflow</h3>
+
+            <div class="security-flow">
+              <span>User</span>
+              <b>→</b>
+              <span>Django</span>
+              <b>→</b>
+              <span>Agents</span>
+              <b>→</b>
+              <span>Verified</span>
+            </div>
+
+            <div class="secure-badge">● System Ready</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CTA ================= -->
+
+      <section class="cta-section">
+        <div class="container cta-container">
+          <div class="cta-label">DOCUMENT INTELLIGENCE, SIMPLIFIED</div>
+
+          <h2>
+            Give your documents
+            <br />
+            an intelligent interface.
+          </h2>
+
+          <p>Upload. Ask. Understand. Let DocuMind handle the complexity.</p>
+
+          <div class="cta-actions">
+            <a href="{% url 'chat' %}" class="btn btn-white">
+              Get Started
+              <span>→</span>
+            </a>
+
+            <a href="#" class="cta-secondary"> View Documentation </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+      <div class="container footer-container">
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <div class="logo-icon">D</div>
+            <span>Docu<span>Mind</span></span>
+          </a>
+
+          <p>Intelligent document understanding powered by AI agents.</p>
+        </div>
+
+        <div class="footer-links">
+          <div>
+            <h4>Product</h4>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#technology">Technology</a>
+          </div>
+
+          <div>
+            <h4>Resources</h4>
+            <a href="#">Documentation</a>
+            <a href="#">GitHub</a>
+            <a href="#">README</a>
+          </div>
+
+          <div>
+            <h4>Application</h4>
+            <a href="#">Sign In</a>
+            <a href="{% url 'chat' %}">Get Started</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="container footer-bottom">
+        <span> © 2026 DocuMind. All rights reserved. </span>
+
+        <span> Built with Django · LangChain · LangGraph </span>
+      </div>
+    </footer>
+  </body>
+</html>
