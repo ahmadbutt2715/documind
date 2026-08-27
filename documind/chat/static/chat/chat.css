@@ -98,6 +98,53 @@ a {
     border-right: 1px solid var(--border);
 }
 
+.sidebar {
+    transition: margin-left 0.25s ease;
+}
+
+
+.sidebar.collapsed {
+    margin-left: calc(-1 * var(--sidebar-width));
+}
+
+/* Expand button - hidden by default, shown when sidebar is collapsed */
+.expand-btn {
+    position: fixed;
+    top: 20px;
+    left: 14px;
+    z-index: 10;
+
+    width: 28px;
+    height: 28px;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 6px;
+
+    background: #f8fafc;
+    border: 1px solid var(--border);
+
+    color: #7d899a;
+
+    font-size: 15px;
+
+    box-shadow: 0 2px 6px rgba(8, 26, 51, 0.08);
+
+    transition: 0.2s;
+}
+
+.expand-btn:hover {
+    background: #e9eef5;
+    color: var(--navy-900);
+}
+
+.expand-btn.visible {
+    display: flex;
+}
+
+
 
 /* Sidebar Header */
 
@@ -1295,4 +1342,52 @@ a {
 
         white-space: nowrap;
     }
+}
+
+
+/* Code written by AI */
+.assistant-message pre {
+    background: #f3f6fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+    font-size: 11px;
+}
+
+.assistant-message code {
+    background: #f0f3f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.assistant-message pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.assistant-message ul,
+.assistant-message ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.assistant-message a {
+    color: var(--blue-600);
+    text-decoration: underline;
+}
+
+
+/* No conversation occur yet */
+.no-conversations {
+    padding: 14px 9px;
+
+    color: #9aa5b5;
+
+    font-size: 10px;
+
+    line-height: 1.6;
+
+    text-align: center;
 }

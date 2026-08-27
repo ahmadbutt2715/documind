@@ -8,6 +8,8 @@
 
     <title>DocuMind — Chat</title>
     <link rel="stylesheet" href="{% static 'chat/chat.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>       {% comment %} for safe markdown responses of ai {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>     {% comment %} for safe markdown responses of ai {% endcomment %}
 
 </head>
 
@@ -38,12 +40,10 @@
             <!-- New Chat -->
 
             <div class="new-chat-wrapper">
-
-                <button class="new-chat">
+                <button type="button" class="new-chat">
                     <span class="plus">+</span>
                     New Chat
                 </button>
-
             </div>
 
 
@@ -68,53 +68,19 @@
             <div class="conversations">
 
                 <div class="conversation-section">
+                    <div class="section-title">Chats</div>
 
-                    <div class="section-title">
-                        Chats
-                    </div>
-
-                    <a href="#" class="conversation active">
-
+                    {% for c in conversations %}
+                    <a href="{% url 'chat_detail' c.id %}"
+                    class="conversation {% if conversation and conversation.id == c.id %}active{% endif %}">
                         <span class="conversation-icon">◌</span>
-
-                        <span class="conversation-name">
-                            Project requirements analysis
-                        </span>
-
+                        <span class="conversation-name">{{ c.title }}</span>
                         <span class="more">•••</span>
-
                     </a>
-
-
-                    <a href="#" class="conversation">
-
-                        <span class="conversation-icon">◌</span>
-
-                        <span class="conversation-name">
-                            Summarize research paper
-                        </span>
-
-                        <span class="more">•••</span>
-
-                    </a>
-
-
-                    <a href="#" class="conversation">
-
-                        <span class="conversation-icon">◌</span>
-
-                        <span class="conversation-name">
-                            Database architecture
-                        </span>
-
-                        <span class="more">•••</span>
-
-                    </a>
-
+                    {% empty %}
+                    <p class="no-conversations">No chats yet — start a new one.</p>
+                    {% endfor %}
                 </div>
-
-
-
 
             </div>
 
@@ -160,64 +126,16 @@
 
         </aside>
 
+        
+        <!-- Expand button (shown only when sidebar is collapsed) -->
+        <button class="expand-btn" title="Expand sidebar">
+            ›
+        </button>
+
 
         <!-- ================= MAIN CHAT ================= -->
 
         <main class="chat">
-
-            <!-- Chat Header -->
-
-            <header class="chat-header">
-
-                <div class="mobile-logo">
-
-                    <div class="logo-icon">
-                        D
-                    </div>
-
-                    <strong>DocuMind</strong>
-
-                </div>
-
-
-                <div class="chat-title">
-
-                    <div class="title-icon">
-                        ✦
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Project requirements analysis
-                        </strong>
-
-                        <span>
-                            Document conversation
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <button class="header-btn" title="Documents">
-                        ▣
-                    </button>
-
-                    <button class="header-btn" title="Share">
-                        ↗
-                    </button>
-
-                    <button class="header-btn" title="More">
-                        •••
-                    </button>
-
-                </div>
-
-            </header>
 
 
             <!-- ================= CHAT CONTENT ================= -->
@@ -225,194 +143,27 @@
             <div class="chat-content">
 
                 <div class="messages">
-
-
-                    <!-- Welcome -->
-
+                    {% if not messages %}
                     <div class="welcome">
-
-                        <div class="welcome-icon">
-                            D
-                        </div>
-
-                        <h1>
-                            How can I help you?
-                        </h1>
-
-                        <p>
-                            Ask questions about your documents,
-                            summarize content, or explore information
-                            with DocuMind.
-                        </p>
-
+                        <div class="welcome-icon">D</div>
+                        <h1>How can I help you?</h1>
+                        <p>Ask questions about your documents, summarize content, or explore information with DocuMind.</p>
                     </div>
+                    {% endif %}
 
-
-                    <!-- User Message -->
-
-                    <div class="message-row user-row">
-
-                        <div class="message user-message">
-                            What are the main requirements
-                            mentioned in the project proposal?
+                    {% for message in messages %}
+                        {% if message.role == "user" %}
+                        <div class="message-row user-row">
+                            <div class="message user-message">{{ message.content }}</div>
                         </div>
-
-                    </div>
-
-
-                    <!-- AI Message -->
-
-                    <div class="message-row assistant-row">
-
-                        <div class="assistant-avatar">
-                            D
+                        {% else %}
+                        <div class="message-row assistant-row">
+                            <div class="assistant-content">
+                                <div class="assistant-message">{{ message.rendered_content|safe }}</div>
+                            </div>
                         </div>
-
-                        <div class="assistant-content">
-
-                            <div class="assistant-name">
-                                DocuMind
-                            </div>
-
-                            <div class="assistant-message">
-
-                                <p>
-                                    The project proposal identifies
-                                    several key requirements. The main
-                                    requirements are:
-                                </p>
-
-                                <ol>
-                                    <li>
-                                        A Django-based web application
-                                        for document management.
-                                    </li>
-
-                                    <li>
-                                        AI-powered question answering
-                                        using document retrieval.
-                                    </li>
-
-                                    <li>
-                                        LangGraph-based agent
-                                        orchestration.
-                                    </li>
-
-                                    <li>
-                                        Persistent conversation memory
-                                        using database checkpointing.
-                                    </li>
-
-                                    <li>
-                                        Human approval for sensitive
-                                        actions.
-                                    </li>
-                                </ol>
-
-                                <p>
-                                    These requirements form the core
-                                    architecture of the proposed system.
-                                </p>
-
-                            </div>
-
-
-                            <!-- Sources -->
-
-                            <div class="sources">
-
-                                <div class="sources-header">
-                                    <span>⌕</span>
-                                    Sources
-                                </div>
-
-                                <div class="source">
-
-                                    <div class="source-icon">
-                                        PDF
-                                    </div>
-
-                                    <div>
-                                        <strong>
-                                            project-proposal.pdf
-                                        </strong>
-
-                                        <span>
-                                            Page 3 · Requirements
-                                        </span>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- Message Actions -->
-
-                            <div class="message-actions">
-
-                                <button title="Copy">
-                                    ⧉
-                                </button>
-
-                                <button title="Good response">
-                                    ♡
-                                </button>
-
-                                <button title="Bad response">
-                                    ♧
-                                </button>
-
-                                <button title="Regenerate">
-                                    ↻
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- User Message -->
-
-                    <div class="message-row user-row">
-
-                        <div class="message user-message">
-                            Can you summarize those requirements
-                            in three points?
-                        </div>
-
-                    </div>
-
-
-                    <!-- AI typing -->
-
-                    <div class="message-row assistant-row">
-
-                        <div class="assistant-avatar">
-                            D
-                        </div>
-
-                        <div class="assistant-content">
-
-                            <div class="assistant-name">
-                                DocuMind
-                            </div>
-
-                            <div class="typing-message">
-
-                                <span></span>
-                                <span></span>
-                                <span></span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
+                        {% endif %}
+                    {% endfor %}
                 </div>
 
             </div>
@@ -423,30 +174,6 @@
             <div class="input-area">
 
                 <div class="input-container">
-
-                    <div class="attached-document">
-
-                        <div class="attached-icon">
-                            PDF
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                project-proposal.pdf
-                            </strong>
-
-                            <span>
-                                Using document
-                            </span>
-
-                        </div>
-
-                        <button>
-                            ×
-                        </button>
-
-                    </div>
 
 
                     <textarea
@@ -462,14 +189,6 @@
                             <button title="Attach document">
                                 ＋
                             </button>
-
-                            <button title="Use web search">
-                                ◉
-                            </button>
-
-                            <span class="tool-label">
-                                Web search
-                            </span>
 
                         </div>
 
@@ -497,9 +216,17 @@
 
             </div>
 
+
+
         </main>
 
     </div>
 
+    {% if conversation %}
+        {{ conversation.id|stringformat:"s"|json_script:"conversation-id-data" }}
+    {% else %}
+        <script type="application/json" id="conversation-id-data">null</script>
+    {% endif %}
+    <script src="{% static 'chat/script.js' %}"></script>
 </body>
 </html>
