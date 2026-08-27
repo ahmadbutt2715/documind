@@ -139,6 +139,24 @@ document.addEventListener("DOMContentLoaded", () => {
     
 
     // ---------- Send message ----------
+    function createAssistantMessageShell() {
+        const row = document.createElement("div");
+        row.className = "message-row assistant-row";
+        row.innerHTML = `
+            <div class="assistant-content">
+                <div class="assistant-message"></div>
+                <div class="message-actions">
+                    <button title="Copy">⧉</button>
+                    <button title="Good response">♡</button>
+                    <button title="Bad response">♧</button>
+                    <button title="Regenerate">↻</button>
+                </div>
+            </div>
+        `;
+        messagesContainer.appendChild(row);
+        return row.querySelector(".assistant-message");
+    }
+
     async function sendMessage() {
         const text = textarea.value.trim();
         if (!text) return;
@@ -149,11 +167,12 @@ document.addEventListener("DOMContentLoaded", () => {
         textarea.style.height = "auto";
         scrollToBottom();
 
-        const typingRow = showTypingIndicator();
         sendBtn.disabled = true;
+        const contentEl = createAssistantMessageShell();
+        let fullText = "";
 
         try {
-            const response = await fetch("/chat/send/", {   // hit API to send question and get answer from chatbot. defined in views.py and endpoint in urls.py
+            const response = await fetch("/chat/send/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -165,25 +184,57 @@ document.addEventListener("DOMContentLoaded", () => {
                 }),
             });
 
-            if (!response.ok) {
+            if (!response.ok || !response.body) {
                 throw new Error(`Server responded with ${response.status}`);
             }
 
-            const data = await response.json();
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
 
-            typingRow.remove();
-            renderAssistantMessage(data.reply);
-            scrollToBottom();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            if (!currentConversationId) {
-                currentConversationId = data.conversation_id;
-                history.pushState({}, "", `/chat/${data.conversation_id}/`);
-                prependConversationToSidebar(data.conversation_id, data.title); // show new chat in side bar without reload
+                buffer += decoder.decode(value, { stream: true });
+
+                const parts = buffer.split("\n\n");
+                buffer = parts.pop(); // last part may be incomplete — keep for next read
+
+                for (const part of parts) {
+                    if (!part.trim()) continue;
+
+                    let eventType = "message";
+                    let data = "";
+                    for (const line of part.split("\n")) {
+                        if (line.startsWith("event:")) eventType = line.slice(6).trim();
+                        if (line.startsWith("data:")) data = line.slice(5).trim();
+                    }
+                    if (!data) continue;
+
+                    const parsed = JSON.parse(data);
+
+                    if (eventType === "meta") {
+                        if (!currentConversationId) {
+                            currentConversationId = parsed.conversation_id;
+                            history.pushState({}, "", `/chat/${parsed.conversation_id}/`);
+                            prependConversationToSidebar(parsed.conversation_id, parsed.title);
+                        }
+                    } else if (eventType === "token") {
+                        fullText += parsed.token;
+                        const rawHtml = marked.parse(fullText);
+                        contentEl.innerHTML = DOMPurify.sanitize(rawHtml);
+                        scrollToBottom();
+                    } else if (eventType === "done") {
+                        contentEl.querySelectorAll("pre code").forEach((block) => {
+                            hljs.highlightElement(block);
+                        });
+                    }
+                }
             }
         } catch (err) {
-            typingRow.remove();
-            renderAssistantMessage("Something went wrong. Please try again.");
-            console.error("Send message failed:", err);
+            contentEl.textContent = "Something went wrong. Please try again.";
+            console.error("Stream failed:", err);
         } finally {
             sendBtn.disabled = false;
         }

@@ -2,9 +2,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Conversation
 from .models import Conversation, Message
 import json
-from django.http import JsonResponse
+from django.http import StreamingHttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
-from .services import get_ai_reply
+from django.contrib.auth.decorators import login_required
+from .services import get_ai_reply_stream
 from .models import Conversation, Message
 
 
@@ -29,6 +30,7 @@ def chat(request, conversation_id=None):
 
 # User input
 
+@login_required
 @require_POST
 def send_message(request):
     body = json.loads(request.body)
@@ -43,17 +45,22 @@ def send_message(request):
     else:
         conversation = Conversation.objects.create(title=text[:50])
 
-    # thread_id must be a string — LangGraph expects str, Django gives you an int
-    thread_id = str(conversation.id)
-
     Message.objects.create(conversation=conversation, role="user", content=text)
 
-    reply_text = get_ai_reply(thread_id, text)
+    def event_stream():
+        # Sent first so the frontend can adopt the new conversation id immediately
+        meta = {"conversation_id": str(conversation.id), "title": conversation.title}
+        yield f"event: meta\ndata: {json.dumps(meta)}\n\n"
 
-    Message.objects.create(conversation=conversation, role="assistant", content=reply_text)
+        full_reply = ""
+        for token in get_ai_reply_stream(conversation.thread_id, text):
+            full_reply += token
+            yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
 
-    return JsonResponse({
-        "conversation_id": conversation.id,
-        "title": conversation.title,
-        "reply": reply_text,
-    })
+        Message.objects.create(conversation=conversation, role="assistant", content=full_reply)
+        yield "event: done\ndata: {}\n\n"
+
+    response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
+    response["Cache-Control"] = "no-cache"
+    response["X-Accel-Buffering"] = "no"  # relevant only if deployed behind nginx
+    return response

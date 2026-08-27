@@ -95,16 +95,18 @@ chatbot = graph.compile(checkpointer=checkpointer)
 
 
 # query with chatbot
-def get_ai_reply(thread_id: str, user_message: str) -> str:
+def get_ai_reply_stream(thread_id: str, user_message: str):
     config = {"configurable": {"thread_id": thread_id}}
 
-    response = chatbot.invoke(
+    for message_chunk, metadata in chatbot.stream(
         {"messages": [HumanMessage(content=user_message)]},
         config=config,
-    )
-
-    # last message in the state is the assistant's final reply
-    return response["messages"][-1].text
+        stream_mode="messages",
+    ):
+        # Only stream tokens from your chat_node's LLM output —
+        # skip chunks from tool_node (tool calls don't produce readable tokens)
+        if metadata.get("langgraph_node") == "chat_node" and message_chunk.content:
+            yield message_chunk.text
 
 
 
