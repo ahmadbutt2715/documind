@@ -103,23 +103,15 @@
                 <!-- Account -->
 
                 <div class="account">
-
-                    <div class="avatar">
-                        AB
-                    </div>
-
+                    <div class="avatar">{{ request.user.username|slice:":2"|upper }}</div>
                     <div class="account-info">
-
-                        <strong>Ahmad Butt</strong>
-
-                        <span>ahmad@example.com</span>
-
+                        <strong>{{ request.user.username }}</strong>
+                        <span>{{ request.user.email|default:"" }}</span>
                     </div>
-
-                    <button class="account-menu">
-                        •••
-                    </button>
-
+                    <form action="{% url 'logout' %}" method="post" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="account-menu" title="Log out">⏻</button>
+                    </form>
                 </div>
 
             </div>
@@ -175,6 +167,7 @@
 
                 <div class="input-container">
 
+                    <div id="attached-document-container"></div>
 
                     <textarea
                         placeholder="Ask anything about your documents..."
@@ -186,9 +179,8 @@
 
                         <div class="input-tools">
 
-                            <button title="Attach document">
-                                ＋
-                            </button>
+                            <input type="file" id="file-input" accept=".pdf" hidden>
+                            <button type="button" id="attach-btn" title="Attach document">＋</button>
 
                         </div>
 
@@ -208,6 +200,7 @@
                     </div>
 
                 </div>
+            </div>
 
                 <p class="disclaimer">
                     DocuMind can make mistakes. Check important

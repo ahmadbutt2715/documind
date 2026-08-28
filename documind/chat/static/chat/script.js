@@ -9,6 +9,67 @@ document.addEventListener("DOMContentLoaded", () => {
     const collapseBtn = document.querySelector(".collapse-btn");
     const expandBtn = document.querySelector(".expand-btn");
 
+    const fileInput = document.getElementById("file-input");
+    const attachBtn = document.getElementById("attach-btn");
+    const attachedContainer = document.getElementById("attached-document-container");
+
+    attachBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        showAttachedChip(file.name, "Uploading...");
+
+        const formData = new FormData();
+        formData.append("file", file);
+        if (currentConversationId) {
+            formData.append("conversation_id", currentConversationId);
+        }
+
+        try {
+            const response = await fetch("/chat/upload/", {
+                method: "POST",
+                headers: { "X-CSRFToken": getCookie("csrftoken") }, // no Content-Type — browser sets multipart boundary itself
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
+            const data = await response.json();
+
+            showAttachedChip(data.filename, "Ready — ask a question about it");
+
+            if (!currentConversationId) {
+                currentConversationId = data.conversation_id;
+                history.pushState({}, "", `/chat/${data.conversation_id}/`);
+                prependConversationToSidebar(data.conversation_id, data.title);
+            }
+        } catch (err) {
+            showAttachedChip(file.name, "Upload failed — try again");
+            console.error(err);
+        } finally {
+            fileInput.value = "";
+        }
+    });
+
+    function showAttachedChip(filename, statusText) {
+        attachedContainer.innerHTML = `
+            <div class="attached-document">
+                <div class="attached-icon">PDF</div>
+                <div>
+                    <strong></strong>
+                    <span></span>
+                </div>
+                <button type="button" title="Remove">×</button>
+            </div>
+        `;
+        attachedContainer.querySelector("strong").textContent = filename;
+        attachedContainer.querySelector("span").textContent = statusText;
+        attachedContainer.querySelector("button").addEventListener("click", () => {
+            attachedContainer.innerHTML = "";
+        });
+    }
+
     // Single source of truth for the active conversation id
     let currentConversationId = JSON.parse(
         document.getElementById("conversation-id-data").textContent
@@ -73,38 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
         messagesContainer.appendChild(row);
     }
 
-    function renderAssistantMessage(text) {
-        const row = document.createElement("div");
-        row.className = "message-row assistant-row";
-        row.innerHTML = `
-            <div class="assistant-content">
-                <div class="assistant-message"></div>
-                <div class="message-actions">
-                </div>
-            </div>
-        `;
-
-        const rawHtml = marked.parse(text);
-        const cleanHtml = DOMPurify.sanitize(rawHtml);
-        row.querySelector(".assistant-message").innerHTML = cleanHtml;
-
-        messagesContainer.appendChild(row);
-    }
-
-    function showTypingIndicator() {
-        const row = document.createElement("div");
-        row.className = "message-row assistant-row typing-row";
-        row.innerHTML = `
-            <div class="assistant-avatar">D</div>
-            <div class="typing-message">
-                <span></span><span></span><span></span>
-            </div>
-        `;
-        messagesContainer.appendChild(row);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        return row;
-    }
-
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -145,12 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
         row.innerHTML = `
             <div class="assistant-content">
                 <div class="assistant-message"></div>
-                <div class="message-actions">
-                    <button title="Copy">⧉</button>
-                    <button title="Good response">♡</button>
-                    <button title="Bad response">♧</button>
-                    <button title="Regenerate">↻</button>
-                </div>
             </div>
         `;
         messagesContainer.appendChild(row);

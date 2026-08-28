@@ -28,7 +28,7 @@
         </nav>
 
         <div class="nav-actions">
-          <a href="#" class="login-link">Sign In</a>
+          <a href="{% url 'chat' %}" class="login-link">Login</a>
           <a href="{% url 'chat' %}" class="btn btn-primary btn-small"> Get Started </a>
         </div>
       </div>
@@ -688,7 +688,7 @@
 
           <div>
             <h4>Application</h4>
-            <a href="#">Sign In</a>
+            <a href="{% url 'chat' %}">Login</a>
             <a href="{% url 'chat' %}">Get Started</a>
             <a href="#">Contact</a>
           </div>

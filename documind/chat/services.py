@@ -10,24 +10,53 @@ from langchain_experimental.tools import PythonREPLTool     # calculator tool
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_community.tools import DuckDuckGoSearchRun   # web search tool
 from ddgs.exceptions import DDGSException                   # web search tool Duck Duck Go exceptions
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+import markdown
+import bleach
+import os
+from django.conf import settings
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.runnables import RunnableConfig
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
 
 load_dotenv()
 
 
+# --------------------------------------------- RAG components / helper functions ---------------------------------------------
 
-# state schemas
-class MessageState(TypedDict):
-    messages: Annotated[list[BaseMessage], add_messages]
+VECTORSTORE_DIR = os.path.join(settings.BASE_DIR, "vectorstores")
+
+embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
 
 
-# generative model
-llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest")
+def get_vectorstore_path(thread_id: str) -> str:
+    return os.path.join(VECTORSTORE_DIR, thread_id)
+
+
+def ingest_pdf(file_path: str, thread_id: str):
+    """Load, split, embed a PDF and save/append to this thread's vector store."""
+    loader = PyPDFLoader(file_path)
+    docs = loader.load()
+
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    chunks = splitter.split_documents(docs)
+
+    path = get_vectorstore_path(thread_id)
+    os.makedirs(VECTORSTORE_DIR, exist_ok=True)
+
+    if os.path.exists(path):
+        vector_store = FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
+        vector_store.add_documents(chunks)  # append — supports multiple uploads per conversation
+    else:
+        vector_store = FAISS.from_documents(chunks, embeddings)
+
+    vector_store.save_local(path)
+
 
 
 # --------------------------------------------- Tools ---------------------------------------------
 # tool 1
-
 ddg_obj = DuckDuckGoSearchRun(region='us-en')
 @tool       # wrapping it in custom function to handle exceptions
 def web_search(query: str) -> str:
@@ -44,8 +73,43 @@ def web_search(query: str) -> str:
 calculator = PythonREPLTool()   # it can execute python code, change it before going into production
 
 
+# tool 3
+@tool
+def rag_tool(query: str, config: RunnableConfig) -> dict:
+    """Retrieve relevant information from documents uploaded in this conversation.
+Use this tool when the user asks factual/conceptual questions that might be
+answered from an uploaded document."""
 
-tools_list = [web_search, calculator]
+    thread_id = config["configurable"]["thread_id"]
+    path = get_vectorstore_path(thread_id)
+
+    if not os.path.exists(path):
+        return {"query": query, "context": [], "metadata": [], "note": "No document has been uploaded in this conversation yet."}
+
+    vector_store = FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
+    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 4})
+
+    result = retriever.invoke(query)
+    return {
+        "query": query,
+        "context": [doc.page_content for doc in result],
+        "metadata": [doc.metadata for doc in result],
+    }
+
+
+
+tools_list = [web_search, calculator, rag_tool]
+
+
+
+# --------------------------------------------- Graph state and Models ---------------------------------------------
+# state schemas
+class MessageState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+
+
+# generative model
+llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest")
 
 
 # llm with tools
@@ -67,12 +131,12 @@ def chat_node(state: MessageState):
     # store response to state
     return {"messages": [response]}
 
-# ------------------------------------------------------------------------------------------------------
 
 
-# checkpointer
+# --------------------------------------------- DB connection and Checkpointer ---------------------------------------------
 conn = sqlite3.connect(database='db.sqlite3', check_same_thread=False)     # support multiple threats
 checkpointer = SqliteSaver(conn=conn)        # where to store state of graph
+
 
 
 # --------------------------------------------- Build Graph ---------------------------------------------
@@ -93,8 +157,8 @@ chatbot = graph.compile(checkpointer=checkpointer)
 
 
 
-
-# query with chatbot
+# --------------------------------------------- Helper functions ---------------------------------------------
+# function 1: query with chatbot
 def get_ai_reply_stream(thread_id: str, user_message: str):
     config = {"configurable": {"thread_id": thread_id}}
 
@@ -110,14 +174,8 @@ def get_ai_reply_stream(thread_id: str, user_message: str):
 
 
 
-
-
-
-import markdown
-import bleach
-
+# function 2: render safe markdown
 ALLOWED_TAGS = ["p", "strong", "em", "code", "pre", "ul", "ol", "li", "a", "h1", "h2", "h3", "blockquote", "br"]
-
 def render_markdown_safe(text: str) -> str:
     html = markdown.markdown(text, extensions=["fenced_code", "tables"])
     return bleach.clean(html, tags=ALLOWED_TAGS, attributes={"a": ["href"]})

@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DocuMind — Log In</title>
+    <link rel="stylesheet" href="{% static 'chat/chat.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="logo">
+                <div class="logo-icon">D</div>
+                <span>Docu<span>Mind</span></span>
+            </div>
+
+            <h1>Welcome back</h1>
+            <p class="auth-subtitle">Log in to continue your conversations.</p>
+
+            {% if form.errors %}
+                <div class="auth-error">Invalid username or password.</div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <label>Username</label>
+                <input type="text" name="username" required autofocus>
+
+                <label>Password</label>
+                <input type="password" name="password" required>
+
+                <button type="submit" class="auth-submit">Log In</button>
+            </form>
+
+            <p class="auth-switch">
+                Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.conf import settings
 
 
 def generate_thread_id():
@@ -8,6 +9,7 @@ def generate_thread_id():
 
 class Conversation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="conversations")
     title = models.CharField(max_length=255, default="New Chat")
     thread_id = models.CharField(max_length=64, unique=True, editable=False, default=generate_thread_id)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -38,3 +40,13 @@ class Message(models.Model):
     def rendered_content(self):
         from .services import render_markdown_safe
         return render_markdown_safe(self.content)
+
+
+class Document(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="documents")
+    file = models.FileField(upload_to="uploads/%Y/%m/%d/")
+    original_name = models.CharField(max_length=255)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.original_name
