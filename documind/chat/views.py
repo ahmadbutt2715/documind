@@ -37,23 +37,42 @@ def send_message(request):
     conversation_id = body.get("conversation_id")
     text = body.get("message", "").strip()
 
-    if not text:
-        return JsonResponse({"error": "Empty message"}, status=400)
-
     if conversation_id:
         conversation = Conversation.objects.get(id=conversation_id, user=request.user)
     else:
-        conversation = Conversation.objects.create(user=request.user, title=text[:50])
+        title = text[:50] if text else "New document chat"
+        conversation = Conversation.objects.create(user=request.user, title=title)
 
-    Message.objects.create(conversation=conversation, role="user", content=text)
+    pending_doc = conversation.documents.filter(messages__isnull=True).first()
+
+    if not text and not pending_doc:
+        return JsonResponse({"error": "Empty message"}, status=400)
+
+    # Save exactly what the user typed — can be an empty string
+    user_message = Message.objects.create(conversation=conversation, role="user", content=text)
+
+    llm_input_text = text
+
+    if pending_doc:
+        user_message.document = pending_doc
+        user_message.save()
+
+        if text:
+            llm_input_text = (
+                f'[System note: the user has attached a document named "{pending_doc.original_name}" '
+                f'to this conversation. Use the rag_tool if their message relates to it.]\n\n{text}'
+            )
+        else:
+            llm_input_text = (
+                f'[System note: the user attached a document named "{pending_doc.original_name}"] '
+            )
 
     def event_stream():
-        # Sent first so the frontend can adopt the new conversation id immediately
         meta = {"conversation_id": str(conversation.id), "title": conversation.title}
         yield f"event: meta\ndata: {json.dumps(meta)}\n\n"
 
         full_reply = ""
-        for token in get_ai_reply_stream(conversation.thread_id, text):
+        for token in get_ai_reply_stream(conversation.thread_id, llm_input_text):
             full_reply += token
             yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
 
@@ -62,7 +81,7 @@ def send_message(request):
 
     response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
     response["Cache-Control"] = "no-cache"
-    response["X-Accel-Buffering"] = "no"  # relevant only if deployed behind nginx
+    response["X-Accel-Buffering"] = "no"
     return response
 
 

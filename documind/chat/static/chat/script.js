@@ -19,7 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const file = fileInput.files[0];
         if (!file) return;
 
-        showAttachedChip(file.name, "Uploading...");
+        isUploading = true;
+        sendBtn.disabled = true;
+        showAttachedChip(file.name, "Uploading...", true);   // loading = true, no remove button, spinner shown
 
         const formData = new FormData();
         formData.append("file", file);
@@ -30,14 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch("/chat/upload/", {
                 method: "POST",
-                headers: { "X-CSRFToken": getCookie("csrftoken") }, // no Content-Type — browser sets multipart boundary itself
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
                 body: formData,
             });
 
             if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
             const data = await response.json();
 
-            showAttachedChip(data.filename, "Ready — ask a question about it");
+            showAttachedChip(data.filename, "PDF");   // loading = false → spinner replaced with icon + remove button
 
             if (!currentConversationId) {
                 currentConversationId = data.conversation_id;
@@ -49,31 +51,55 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(err);
         } finally {
             fileInput.value = "";
+            isUploading = false;
+            sendBtn.disabled = false;
         }
     });
 
-    function showAttachedChip(filename, statusText) {
+    function showAttachedChip(filename, statusText, loading = false) {
+        attachedFilename = filename;
+
+        const truncated = filename.length > 28 ? filename.slice(0, 25) + "…" : filename;
+
+        const iconHtml = loading
+            ? `<div class="attached-pill-spinner"></div>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>`;
+
         attachedContainer.innerHTML = `
-            <div class="attached-document">
-                <div class="attached-icon">PDF</div>
-                <div>
+            <div class="attached-pill">
+                <div class="attached-pill-icon">
+                    ${iconHtml}
+                </div>
+                <div class="attached-pill-text">
                     <strong></strong>
                     <span></span>
                 </div>
-                <button type="button" title="Remove">×</button>
+                ${loading ? "" : `<button type="button" class="attached-pill-remove" title="Remove">×</button>`}
             </div>
         `;
-        attachedContainer.querySelector("strong").textContent = filename;
+
+        attachedContainer.querySelector("strong").textContent = truncated;
         attachedContainer.querySelector("span").textContent = statusText;
-        attachedContainer.querySelector("button").addEventListener("click", () => {
-            attachedContainer.innerHTML = "";
-        });
+
+        const removeBtn = attachedContainer.querySelector(".attached-pill-remove");
+        if (removeBtn) {
+            removeBtn.addEventListener("click", () => {
+                attachedContainer.innerHTML = "";
+                attachedFilename = null;
+            });
+        }
     }
 
     // Single source of truth for the active conversation id
     let currentConversationId = JSON.parse(
         document.getElementById("conversation-id-data").textContent
     );
+
+    let attachedFilename = null;
+    let isUploading = false;
 
     // ---------- Sidebar search ----------
     searchInput.addEventListener("input", function () {
@@ -126,7 +152,31 @@ document.addEventListener("DOMContentLoaded", () => {
         if (welcome) welcome.remove();
     }
 
-    function renderUserMessage(text) {
+    function renderUserMessage(text, attachmentName = null) {
+        if (attachmentName) {
+            const attachmentRow = document.createElement("div");
+            attachmentRow.className = "message-row user-row";
+            attachmentRow.innerHTML = `
+                <div class="attached-pill attached-pill-inline">
+                    <div class="attached-pill-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
+                    <div class="attached-pill-text">
+                        <strong></strong>
+                        <span>PDF</span>
+                    </div>
+                </div>
+            `;
+            const truncated = attachmentName.length > 28 ? attachmentName.slice(0, 25) + "…" : attachmentName;
+            attachmentRow.querySelector("strong").textContent = truncated;
+            messagesContainer.appendChild(attachmentRow);
+        }
+
+        if (!text) return;   // don't render an empty text bubble
+
         const row = document.createElement("div");
         row.className = "message-row user-row";
         row.innerHTML = `<div class="message user-message"></div>`;
@@ -181,11 +231,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function sendMessage() {
+        if (isUploading) return;
+
         const text = textarea.value.trim();
-        if (!text) return;
+        if (!text && !attachedFilename) return;   // allow sending with just an attachment
 
         removeWelcome();
-        renderUserMessage(text);
+        renderUserMessage(text, attachedFilename);
+
+        attachedContainer.innerHTML = "";
+        attachedFilename = null;
+
         textarea.value = "";
         textarea.style.height = "auto";
         scrollToBottom();
@@ -203,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify({
                     conversation_id: currentConversationId,
-                    message: text,
+                    message: text,   // can be an empty string now
                 }),
             });
 
@@ -275,5 +331,9 @@ document.addEventListener("DOMContentLoaded", () => {
     textarea.addEventListener("input", () => {
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
+    });
+
+    document.querySelectorAll(".assistant-message pre code").forEach((block) => {
+        hljs.highlightElement(block);
     });
 });

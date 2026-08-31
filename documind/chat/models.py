@@ -29,6 +29,10 @@ class Message(models.Model):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    document = models.ForeignKey(
+        "Document", on_delete=models.SET_NULL, null=True, blank=True, related_name="messages"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["created_at"]

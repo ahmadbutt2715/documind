@@ -1,11 +1,12 @@
-import sqlite3
 from dotenv import load_dotenv
 from langchain_core.tools import tool           # for custom tools
 from typing import TypedDict, Annotated
 from langchain_core.messages import BaseMessage, HumanMessage
 from langgraph.graph.message import add_messages
 from langgraph.graph import START, END, StateGraph
-from langgraph.checkpoint.sqlite import SqliteSaver
+from psycopg.rows import dict_row
+from langgraph.checkpoint.postgres import PostgresSaver
+from psycopg_pool import ConnectionPool
 from langchain_experimental.tools import PythonREPLTool     # calculator tool
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_community.tools import DuckDuckGoSearchRun   # web search tool
@@ -134,8 +135,11 @@ def chat_node(state: MessageState):
 
 
 # --------------------------------------------- DB connection and Checkpointer ---------------------------------------------
-conn = sqlite3.connect(database='db.sqlite3', check_same_thread=False)     # support multiple threats
-checkpointer = SqliteSaver(conn=conn)        # where to store state of graph
+DB_URI = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+
+pool = ConnectionPool(conninfo=DB_URI, max_size=20, kwargs={"autocommit": True, "row_factory": dict_row})
+checkpointer = PostgresSaver(pool)
+checkpointer.setup()   # run once — creates the checkpoint tables if they don't exist
 
 
 
