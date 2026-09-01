@@ -71,7 +71,33 @@ def web_search(query: str) -> str:
 
 
 # tool 2
-calculator = PythonREPLTool()   # it can execute python code, change it before going into production
+@tool
+def calculator(a: float, b: float, operator: str):
+    """
+    Performs a basic arithmetic operation on two numbers.
+
+    Args:
+        a (float): The first number.
+        b (float): The second number.
+        operator (str): The arithmetic operation to perform.
+                        Supported operators are +, -, *, and /.
+
+    Returns:
+        float: The result of the arithmetic operation.
+        str: An error message if the operator is invalid or division by zero is attempted.
+    """
+    if operator == "+":
+        return a + b
+    elif operator == "-":
+        return a - b
+    elif operator == "*":
+        return a * b
+    elif operator == "/":
+        if b == 0:
+            return "Cannot divide by zero"
+        return a / b
+    else:
+        return "Invalid operator"
 
 
 # tool 3
