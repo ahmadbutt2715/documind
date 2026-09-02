@@ -20,6 +20,9 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.runnables import RunnableConfig
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+import base64
+import mimetypes
+from langchain_core.messages import HumanMessage
 
 load_dotenv()
 
@@ -188,19 +191,43 @@ chatbot = graph.compile(checkpointer=checkpointer)
 
 
 # --------------------------------------------- Helper functions ---------------------------------------------
+def _extract_text(content) -> str:
+    """Normalize AIMessageChunk.content, which can be a str or a list of content blocks."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict) and block.get("type") == "text":
+                parts.append(block.get("text", ""))
+        return "".join(parts)
+    return ""
+
 # function 1: query with chatbot
-def get_ai_reply_stream(thread_id: str, user_message: str):
+def get_ai_reply_stream(thread_id: str, text: str, image_path: str = None):
     config = {"configurable": {"thread_id": thread_id}}
 
-    for message_chunk, metadata in chatbot.stream(
-        {"messages": [HumanMessage(content=user_message)]},
-        config=config,
-        stream_mode="messages",
+    if image_path:
+        mime_type, _ = mimetypes.guess_type(image_path)
+        mime_type = mime_type or "image/jpeg"
+        with open(image_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("utf-8")
+
+        human_message = HumanMessage(content=[
+            {"type": "text", "text": text},
+            {"type": "image_url", "image_url": f"data:{mime_type};base64,{encoded}"},
+        ])
+    else:
+        human_message = HumanMessage(content=text)
+
+    for chunk, _metadata in chatbot.stream(
+        {"messages": [human_message]}, config=config, stream_mode="messages"
     ):
-        # Only stream tokens from your chat_node's LLM output —
-        # skip chunks from tool_node (tool calls don't produce readable tokens)
-        if metadata.get("langgraph_node") == "chat_node" and message_chunk.content:
-            yield message_chunk.text
+        text_piece = _extract_text(chunk.content)
+        if text_piece:
+            yield text_piece
 
 
 

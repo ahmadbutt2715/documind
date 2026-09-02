@@ -47,9 +47,12 @@ class Message(models.Model):
 
 
 class Document(models.Model):
+    FILE_TYPE_CHOICES = [("pdf", "PDF"), ("image", "Image")]
+
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="documents")
     file = models.FileField(upload_to="uploads/%Y/%m/%d/")
     original_name = models.CharField(max_length=255)
+    file_type = models.CharField(max_length=10, choices=FILE_TYPE_CHOICES, default="pdf")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
