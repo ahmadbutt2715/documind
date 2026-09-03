@@ -17,11 +17,11 @@
 
 <body>
 
-    <div class="app">
+    <div class="app" id="app">
 
         <!-- ================= SIDEBAR ================= -->
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
 
             <!-- Logo -->
 
@@ -32,7 +32,7 @@
                     <span>Docu<span>Mind</span></span>
                 </a>
 
-                <button class="collapse-btn" title="Collapse sidebar">
+                <button class="collapse-btn" id="collapse-btn" title="Collapse sidebar">
                     ‹
                 </button>
 
@@ -42,7 +42,7 @@
             <!-- New Chat -->
 
             <div class="new-chat-wrapper">
-                <button type="button" class="new-chat">
+                <button type="button" class="new-chat" id="new-chat-btn">
                     <span class="plus">+</span>
                     New Chat
                 </button>
@@ -120,9 +120,12 @@
 
         </aside>
 
-        
-        <!-- Expand button (shown only when sidebar is collapsed) -->
-        <button class="expand-btn" title="Expand sidebar">
+        <!-- Overlay shown behind the sidebar drawer on mobile/tablet -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+
+        <!-- Expand button (shown only when sidebar is collapsed, desktop only) -->
+        <button class="expand-btn" id="expand-btn" title="Expand sidebar">
             ›
         </button>
 
@@ -130,6 +133,28 @@
         <!-- ================= MAIN CHAT ================= -->
 
         <main class="chat">
+
+            <!-- ================= CHAT HEADER ================= -->
+
+            <div class="chat-header">
+
+                <!-- Hamburger: opens the sidebar drawer on mobile/tablet -->
+                <button
+                    type="button"
+                    class="menu-btn"
+                    id="menu-btn"
+                    aria-label="Open sidebar"
+                    aria-controls="sidebar"
+                    aria-expanded="false"
+                >☰</button>
+
+                <div class="chat-title" id="chat-title" {% if not conversation %}style="display: none;"{% endif %}>
+                    <div>
+                        <strong>{{ conversation.title|default:"New Chat" }}</strong>
+                    </div>
+                </div>
+
+            </div>
 
 
             <!-- ================= CHAT CONTENT ================= -->
@@ -177,6 +202,10 @@
                 </div>
 
             </div>
+
+            <button type="button" class="scroll-to-bottom-btn" id="scroll-to-bottom-btn" title="Scroll to latest">
+                ↓
+            </button>
 
 
             <!-- ================= INPUT AREA ================= -->
@@ -238,6 +267,10 @@
     {% else %}
         <script type="application/json" id="conversation-id-data">null</script>
     {% endif %}
+
+
+
+
     <script src="{% static 'chat/script.js' %}"></script>
 </body>
 </html>
