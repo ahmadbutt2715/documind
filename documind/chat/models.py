@@ -7,9 +7,10 @@ def generate_thread_id():
     return uuid.uuid4().hex
 
 
+# 1:M with User
 class Conversation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="conversations")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="conversations")  # Relation asstablished here by FK
     title = models.CharField(max_length=255, default="New Chat")
     thread_id = models.CharField(max_length=64, unique=True, editable=False, default=generate_thread_id)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -22,15 +23,16 @@ class Conversation(models.Model):
         return self.title
 
 
+# 1:M with Document
 class Message(models.Model):
     ROLE_CHOICES = [("user", "User"), ("assistant", "Assistant")]
 
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")   # Relation asstablished here by FK
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     document = models.ForeignKey(
-        "Document", on_delete=models.SET_NULL, null=True, blank=True, related_name="messages"
+        "Document", on_delete=models.SET_NULL, null=True, blank=True, related_name="messages"           # Document is not defined yet, that's why its in ""
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -46,10 +48,11 @@ class Message(models.Model):
         return render_markdown_safe(self.content)
 
 
+# 1:M with Document
 class Document(models.Model):
     FILE_TYPE_CHOICES = [("pdf", "PDF"), ("image", "Image")]
 
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="documents")
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="documents")  # Relation asstablished here by FK
     file = models.FileField(upload_to="uploads/%Y/%m/%d/")
     original_name = models.CharField(max_length=255)
     file_type = models.CharField(max_length=10, choices=FILE_TYPE_CHOICES, default="pdf")

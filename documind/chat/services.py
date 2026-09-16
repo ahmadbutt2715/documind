@@ -34,33 +34,41 @@ VECTORSTORE_DIR = os.path.join(settings.BASE_DIR, "vectorstores")
 embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
 
 
-def get_vectorstore_path(thread_id: str) -> str:
+def get_vectorstore_path_for_thread(thread_id: str) -> str:
     return os.path.join(VECTORSTORE_DIR, thread_id)
 
 
 def ingest_pdf(file_path: str, thread_id: str):
     """Load, split, embed a PDF and save/append to this thread's vector store."""
+    
+    if not os.path.exists(VECTORSTORE_DIR):                         # create vectorstores folder if does not exist, runs 1st time only
+        os.mkdir(VECTORSTORE_DIR)
+
+    embedded_pdf_path = get_vectorstore_path_for_thread(thread_id)          # generate path of dir where actual embeddings will be store, get_path_for_embbedded_pdf
+
+    # 1. LOAD
     loader = PyPDFLoader(file_path)
-    docs = loader.load()
+    docs = loader.load()    # list of Document(metadate: dict, page_content: str) objects
 
+    # 2. SPLIT
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    chunks = splitter.split_documents(docs)
+    chunks = splitter.split_documents(docs)     # list of Document objects with our defined size and overlaping
 
-    path = get_vectorstore_path(thread_id)
-    os.makedirs(VECTORSTORE_DIR, exist_ok=True)
-
-    if os.path.exists(path):
-        vector_store = FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
-        vector_store.add_documents(chunks)  # append — supports multiple uploads per conversation
+    # 3. EMBED (and store in RAM as FAISS is RAB based db)
+    if os.path.exists(embedded_pdf_path):
+        vector_store = FAISS.load_local(embedded_pdf_path, embeddings, allow_dangerous_deserialization=True)        # load the old files(db) from Hard Disk if exist for current conversation(index.faiss & index.pkl)
+        vector_store.add_documents(chunks)  # append current embeddings & metadata in to db (FAISS RAM based DB)
     else:
-        vector_store = FAISS.from_documents(chunks, embeddings)
+        vector_store = FAISS.from_documents(chunks, embeddings)     # make new db obj and store embeddings of pdf
 
-    vector_store.save_local(path)
+    # 4. STORE
+    vector_store.save_local(embedded_pdf_path)      # save to hard drive permanently
 
 
 
 # --------------------------------------------- Tools ---------------------------------------------
 # tool 1
+# web search
 ddg_obj = DuckDuckGoSearchRun(region='us-en')
 @tool       # wrapping it in custom function to handle exceptions
 def web_search(query: str) -> str:
@@ -111,7 +119,7 @@ Use this tool when the user asks factual/conceptual questions that might be
 answered from an uploaded document."""
 
     thread_id = config["configurable"]["thread_id"]
-    path = get_vectorstore_path(thread_id)
+    path = get_vectorstore_path_for_thread(thread_id)
 
     if not os.path.exists(path):
         return {"query": query, "context": [], "metadata": [], "note": "No document has been uploaded in this conversation yet."}
@@ -204,6 +212,8 @@ def _extract_text(content) -> str:
                 parts.append(block.get("text", ""))
         return "".join(parts)
     return ""
+
+
 
 # function 1: query with chatbot
 def get_ai_reply_stream(thread_id: str, text: str, image_path: str = None):

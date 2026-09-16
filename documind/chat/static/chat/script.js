@@ -403,6 +403,20 @@ document.addEventListener("DOMContentLoaded", () => {
     inputAreaResizeObserver.observe(inputArea);
 
     updateInputAreaHeightVar(); // set correct value on initial load
+
+    // Logout button confirmation
+    const logoutTrigger = document.getElementById("logout-trigger");
+    const logoutModal = document.getElementById("logout-modal");
+    const cancelLogout = document.getElementById("cancel-logout");
+
+    logoutTrigger.addEventListener("submit", function (event) {
+        event.preventDefault();
+        logoutModal.classList.add("show");
+    });
+
+    cancelLogout.addEventListener("click", function () {
+        logoutModal.classList.remove("show");
+    });
     // ---------- end new block ----------
 });
 

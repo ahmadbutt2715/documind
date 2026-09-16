@@ -103,20 +103,27 @@
 
 
                 <!-- Account -->
-
                 <div class="account">
-                    <div class="avatar">{{ request.user.username|slice:":2"|upper }}</div>
-                    <div class="account-info">
-                        <strong>{{ request.user.username }}</strong>
-                        <span>{{ request.user.email|default:"" }}</span>
+                    <div class="avatar">
+                        {{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}
                     </div>
-                    <form action="{% url 'logout' %}" method="post" class="logout-form">
-                        {% csrf_token %}
-                        <button type="submit" class="account-menu" title="Log out">⏻</button>
+
+                    <div class="account-info">
+                        <strong>
+                            {{ request.user.get_full_name|default:request.user.username }}
+                        </strong>
+
+                        <span>
+                            {{ request.user.email|default:"" }}
+                        </span>
+                    </div>
+
+                    <form class="logout-form" id="logout-trigger">
+                        <button type="submit" class="account-menu" title="Log out">
+                            ⏻
+                        </button>
                     </form>
                 </div>
-
-            </div>
 
         </aside>
 
@@ -268,9 +275,33 @@
         <script type="application/json" id="conversation-id-data">null</script>
     {% endif %}
 
+    {% comment %} Logout confirmation box {% endcomment %}
+    <div class="logout-modal" id="logout-modal">
+        <div class="logout-modal-box">
+            <h3>Log out?</h3>
+            <p>Are you sure you want to log out of DocuMind?</p>
+
+            <div class="logout-modal-actions">
+                <button type="button" id="cancel-logout">Cancel</button>
+
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="confirm-logout">
+                        Log out
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
 
 
     <script src="{% static 'chat/script.js' %}"></script>
+<script>
+    function confirmLogout() {
+        return window.confirm("Are you sure you want to log out?");
+    }
+</script>
 </body>
 </html>
