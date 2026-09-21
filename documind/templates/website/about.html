@@ -1,0 +1,68 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}DocuMind - About{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'website/about.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="about-page">
+	<section class="about-intro">
+		<div class="container about-intro-grid">
+			<div class="about-heading">
+				<p class="about-eyebrow"><span></span> About DocuMind</p>
+				<h1>Make your documents feel <em>within reach.</em></h1>
+				<p class="about-lede">Important knowledge should not disappear into a folder. DocuMind gives you a direct, conversational way to understand the documents your work depends on.</p>
+			</div>
+
+			<div class="about-note" aria-label="DocuMind's approach">
+				<div class="note-label">The idea</div>
+				<p>Ask better questions of the information you already have.</p>
+				<div class="note-footer"><span class="note-line"></span><span>Built for clarity</span></div>
+			</div>
+		</div>
+	</section>
+
+	<section class="about-story">
+		<div class="container story-grid">
+			<div class="story-intro">
+				<p class="about-eyebrow"><span></span> Why it exists</p>
+				<h2>Less hunting. More understanding.</h2>
+			</div>
+			<div class="story-copy">
+				<p>We built DocuMind around a simple observation: the answer is often already in the room, buried in a brief, a report, or a set of notes.</p>
+				<p>Instead of making you remember the exact filename or phrase, DocuMind lets you start with the question. It brings the relevant context forward so you can move from reading to doing with confidence.</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="principles-section" aria-labelledby="principles-title">
+		<div class="container">
+			<div class="principles-heading">
+				<p class="about-eyebrow"><span></span> Our principles</p>
+				<h2 id="principles-title">A calmer way to work with knowledge.</h2>
+			</div>
+			<div class="principles-grid">
+				<article class="principle-card">
+					<span class="principle-index">01</span>
+					<h3>Context first</h3>
+					<p>Useful answers begin with the right passages, not a guess dressed up as certainty.</p>
+				</article>
+				<article class="principle-card principle-card-accent">
+					<span class="principle-index">02</span>
+					<h3>Plain language</h3>
+					<p>Your questions do not need to sound technical. Ask naturally and keep your attention on the work.</p>
+				</article>
+				<article class="principle-card principle-card-dark">
+					<span class="principle-index">03</span>
+					<h3>Useful by design</h3>
+					<p>Every interaction should help you make a decision, find a detail, or take the next step.</p>
+				</article>
+			</div>
+		</div>
+	</section>
+
+</main>
+
+{% endblock content %}

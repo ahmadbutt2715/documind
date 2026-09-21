@@ -1,0 +1,417 @@
+/* =====================================================
+   DocuMind — base.css
+   Global styles for base.html (header, footer, layout)
+   Palette anchored on #1D3557 (Trukkr's theme color)
+====================================================== */
+
+
+/* ---------- Design tokens ---------- */
+
+:root {
+    --navy-900: #0f2038;
+    --navy-800: #16294a;
+    --navy-700: #1d3557;      /* primary */
+    --blue-500: #457b9d;      /* secondary */
+    --blue-200: #a8dadc;      /* soft accent */
+    --paper:    #f1faee;      /* tinted off-white */
+    --white:    #ffffff;
+    --ink:      #14213a;
+    --ink-soft: #52607a;
+    --line:     #dbe4ee;
+
+    --font-sans: "Manrope", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+                 "Helvetica Neue", Arial, sans-serif;
+
+    --header-h: 72px;
+    --container: 1250px;
+    --radius: 10px;
+    --radius-pill: 999px;
+
+    --shadow-sm: 0 1px 2px rgba(29, 53, 87, 0.08);
+    --shadow-md: 0 8px 24px rgba(29, 53, 87, 0.12);
+
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ---------- Reset ---------- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--white);
+    -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+}
+
+h1, h2, h3, h4 {
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+    color: var(--navy-700);
+}
+
+p {
+    margin: 0;
+}
+
+:focus-visible {
+    outline: 3px solid var(--blue-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+
+/* ---------- Layout helper ---------- */
+
+.container {
+    width: 100%;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: 24px;
+}
+
+
+/* =====================================================
+   HEADER / NAVBAR
+====================================================== */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--line);
+}
+
+.navbar {
+    max-width: var(--container);
+    height: var(--header-h);
+    margin-inline: auto;
+    padding-inline: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+
+/* ---------- Brand ---------- */
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+}
+
+
+/* ---------- Desktop links ---------- */
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav-links a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    transition: color 0.2s var(--ease);
+}
+
+.nav-links a:hover {
+    color: var(--navy-700);
+}
+
+.nav-links a.active {
+    color: var(--navy-700);
+    font-weight: 700;
+}
+
+/* Beats `.nav-links a` because it is listed after and more specific */
+.nav-links a.nav-button {
+    padding: 10px 20px;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--navy-700);
+    border-radius: 4px;
+    transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.nav-links a.nav-button:hover {
+    color: var(--white);
+    background: var(--blue-500);
+}
+
+.nav-links a.nav-button:active {
+    transform: translateY(1px);
+}
+
+
+/* ---------- Hamburger button (mobile only) ---------- */
+
+.menu-button {
+    display: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.menu-button span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--navy-700);
+    border-radius: 2px;
+    transition: transform 0.25s var(--ease), opacity 0.2s var(--ease);
+}
+
+/* Turns into an X when open */
+.menu-button.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.menu-button.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-button.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+
+/* ---------- Mobile menu panel ---------- */
+
+.mobile-menu {
+    display: none;
+}
+
+.mobile-menu a.active {
+    color: var(--navy-700);
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   FOOTER
+====================================================== */
+
+.site-footer {
+    color: rgba(255, 255, 255, 0.72);
+    background: var(--navy-900);
+}
+
+.footer-inner {
+    max-width: var(--container);
+    margin-inline: auto;
+    padding: 64px 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    gap: 48px;
+}
+
+.footer-brand {
+    max-width: 340px;
+}
+
+.footer-brand .brand-mark {
+    background: var(--blue-500);
+}
+
+.footer-brand .brand-name {
+    color: var(--white);
+}
+
+.footer-brand p {
+    margin-top: 16px;
+    font-size: 0.95rem;
+}
+
+.footer-links {
+    display: flex;
+    gap: 80px;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-column h3 {
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--white);
+}
+
+.footer-column a {
+    font-size: 0.95rem;
+    transition: color 0.2s var(--ease);
+}
+
+.footer-column a:hover {
+    color: var(--blue-200);
+}
+
+.footer-bottom {
+    max-width: var(--container);
+    margin-inline: auto;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+/* =====================================================
+   RESPONSIVE — tablets and phones
+====================================================== */
+
+@media (max-width: 768px) {
+
+    :root {
+        --header-h: 64px;
+    }
+
+    /* Swap desktop links for the hamburger */
+    .nav-links {
+        display: none;
+    }
+
+    .menu-button {
+        display: flex;
+    }
+
+    /* Dropdown panel under the header */
+    .mobile-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-height: 0;
+        padding-inline: 24px;
+        overflow: hidden;
+        background: var(--white);
+        border-top: 1px solid transparent;
+        transition: max-height 0.3s var(--ease),
+                    padding 0.3s var(--ease),
+                    border-color 0.3s var(--ease);
+    }
+
+    .mobile-menu.open {
+        max-height: 360px;
+        padding-block: 12px 20px;
+        border-top-color: var(--line);
+    }
+
+    .mobile-menu a {
+        padding: 14px 4px;
+        font-weight: 500;
+        color: var(--ink);
+        border-bottom: 1px solid var(--line);
+    }
+
+    /* Last link = call to action */
+    .mobile-menu a:last-child {
+        margin-top: 12px;
+        padding: 14px;
+        text-align: center;
+        font-weight: 600;
+        color: var(--white);
+        background: var(--navy-700);
+        border-bottom: 0;
+        border-radius: 4px;
+    }
+
+    /* Footer stacks */
+    .footer-inner {
+        flex-direction: column;
+        padding-block: 48px 36px;
+    }
+
+    .footer-links {
+        gap: 56px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+
+
+/* ---------- Respect reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
