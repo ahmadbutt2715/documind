@@ -43,12 +43,11 @@
 	font-size: clamp(2.8rem, 4.6vw, 4.5rem);
 	font-weight: 700;
 	letter-spacing: -0.055em;
-	line-height: 0.96;
+	line-height: 1.1;
 }
 
-.about-heading h1 em {
+.colored {
 	color: #246b8f;
-	font-style: normal;
 }
 
 .about-lede {

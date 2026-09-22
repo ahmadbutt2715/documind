@@ -7,6 +7,10 @@
   --home-slate: #203247;
 }
 
+.colored {
+  color: var(--home-blue);
+}
+
 .home-page {
   overflow: hidden;
   background: #fbfcfa;
