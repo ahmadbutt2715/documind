@@ -1,0 +1,52 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}DocuMind - Contact{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'contact/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="contact-page">
+	<section class="contact-intro">
+		<div class="container contact-intro-grid">
+			<div class="contact-heading">
+				<p class="contact-eyebrow"><span></span> Get in touch</p>
+				<h1>Let’s make your documents <span class="colored">easier to use.</h1>
+				<p class="contact-lede">Have a question about DocuMind, an idea for the product, or a workflow you want to talk through? Send a note and we’ll take a look.</p>
+			</div>
+
+			<div class="contact-form-wrap">
+				<div class="form-heading">
+					<span>Write to us</span>
+					<span class="form-mark">*</span>
+				</div>
+
+				{% if messages %}
+					{% for message in messages %}
+						{% if "contact" in message.tags %}
+							<div class="form-success-message {{ message.tags }}">{{ message }}</div>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+
+				<form class="contact-form" method="post" novalidate>
+					{% csrf_token %}
+					{% for field in form %}
+						<div class="form-field">
+							{{ field.label_tag }}
+							{{ field }}
+							{% if field.errors %}
+								<div class="field-errors">{{ field.errors }}</div>
+							{% endif %}
+						</div>
+					{% endfor %}
+					<button class="contact-submit" type="submit">Send message <span aria-hidden="true">-&gt;</span></button>
+				</form>
+			</div>
+		</div>
+	</section>
+
+</main>
+
+{% endblock content %}

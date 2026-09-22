@@ -1,0 +1,181 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DocuMind{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'website/logo.png' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="{% static 'website/base.css' %}">
+
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- =====================================================
+         HEADER / NAVBAR
+    ====================================================== -->
+
+    <header class="site-header">
+        {% url 'home' as home_url %}
+        {% url 'about' as about_url %}
+        {% url 'contact' as contact_url %}
+
+        <nav class="navbar">
+            <!-- ================= LOGO ================= -->
+            <a href="{% url 'home' %}" class="brand">
+                <img class="brand-logo" src="{% static 'website/logo.png' %}" alt="DocuMind">
+
+                <span class="brand-name">
+                    DocuMind
+                </span>
+            </a>
+
+
+            <!-- ================= DESKTOP NAVIGATION ================= -->
+            <div class="nav-links">
+                <a href="{% url 'home' %}" class="{% if request.path == home_url %}active{% endif %}">
+                    Home
+                </a>
+
+                <a href="{% url 'about' %}" class="{% if request.path == about_url %}active{% endif %}">
+                    About
+                </a>
+
+                <a href="{% url 'contact' %}" class="{% if request.path == contact_url %}active{% endif %}">
+                    Contact
+                </a>
+
+                <a href="{% url 'chat' %}" class="nav-button">
+                    Try DocuMind
+                </a>
+            </div>
+
+
+            <!-- ================= MOBILE MENU BUTTON ================= -->
+            <button class="menu-button" id="menuButton" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+
+
+        <!-- ================= MOBILE NAVIGATION ================= -->
+
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="{% url 'home' %}" class="{% if request.path == home_url %}active{% endif %}">
+                Home
+            </a>
+
+            <a href="{% url 'about' %}" class="{% if request.path == about_url %}active{% endif %}">
+                About
+            </a>
+
+            <a href="{% url 'contact' %}" class="{% if request.path == contact_url %}active{% endif %}">
+                Contact
+            </a>
+
+            <a href="{% url 'chat' %}">
+                Try DocuMind
+            </a>
+        </div>
+
+    </header>
+
+
+
+
+
+
+    <!-- Page-specific content -->
+    {% block content %}
+    {% endblock %}
+
+
+
+
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+
+            <!-- ================= FOOTER BRAND ================= -->
+            <div class="footer-brand">
+                <a href="{% url 'home' %}" class="brand">
+                    <img class="brand-logo" src="{% static 'website/logo.png' %}" alt="DocuMind">
+
+                    <span class="brand-name">
+                        DocuMind
+                    </span>
+
+                </a>
+
+                <p>
+                    Upload documents and chat with them using AI.
+                </p>
+
+            </div>
+
+
+
+            <!-- ================= FOOTER LINKS ================= -->
+            <div class="footer-links">
+
+                <!-- Product -->
+                <div class="footer-column">
+                    <h3>Product</h3>
+
+                    <a href="{% url 'chat' %}">Chat with Documents</a>
+
+                </div>
+
+
+                <!-- Project -->
+                <div class="footer-column">
+                    <h3>Project</h3>
+
+                    <a href="https://github.com/ahmadbutt2715/documind" target="_blank">GitHub</a>
+                    <a href="{% url 'about' %}">About</a>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ================= FOOTER BOTTOM ================= -->
+
+        <div class="footer-bottom">
+
+            <span>© {% now "Y" %} DocuMind</span>
+
+            <span>Built with Django & AI</span>
+
+        </div>
+
+
+    </footer>
+
+
+
+    <!-- Mobile Menu JavaScript -->
+    <script src="{% static 'website/base.js' %}"></script>
+
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

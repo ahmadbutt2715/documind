@@ -49,9 +49,12 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     # My apps
+    'contact',
     'chat',
     'accounts',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
